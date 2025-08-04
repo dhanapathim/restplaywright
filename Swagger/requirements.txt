@@ -1,0 +1,11 @@
+PyYAML>=6.0
+openapi-schema-pydantic
+python-dotenv
+pydantic<2.0
+prance
+openapi-spec-validator
+jsonref
+langchain>=0.2.0
+langchain-google-genai>=0.1.0
+langchain-community
+openai
