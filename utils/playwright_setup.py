@@ -1,3 +1,4 @@
+import shutil
 import sys
 import subprocess
 from pathlib import Path
@@ -32,6 +33,31 @@ class PlaywrightProjectManager:
                 return True
         return False
 
+    def clean_playwright_project(self,project_dir: str):
+        """
+        Cleans the Playwright project directory by deleting unnecessary files and folders.
+        """
+        project_path = Path(project_dir).resolve()
+
+
+
+        #  Delete the 'tests-examples' folder if it exists
+        examples_path = project_path / "tests-examples"
+        if examples_path.exists() and examples_path.is_dir():
+            shutil.rmtree(examples_path)
+            print(f"🗑️ Deleted folder: {examples_path}")
+        else:
+            print(f"✅ Folder not found or already removed: {examples_path}")
+
+        #  Delete all files in the 'tests' folder
+        tests_path = project_path / "tests"
+        if tests_path.exists() and tests_path.is_dir():
+            for file in tests_path.iterdir():
+                file.unlink()
+                print(f"🗑️ Deleted file: {file}")
+        else:
+            print(f"⚠️ 'tests' directory not found at: {tests_path}")
+
     def initiate_project_setup(self, tests_dir: Path) -> bool:
         if self.is_playwright_project(tests_dir):
             print("ℹ️ Playwright already configured here.")
@@ -44,6 +70,8 @@ class PlaywrightProjectManager:
 
         for cmd in commands:
             self.run_command(cmd, str(tests_dir))
+
+            self.clean_playwright_project(tests_dir)
 
         print("✅ Playwright setup complete.")
         return True

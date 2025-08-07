@@ -4,7 +4,7 @@ from utils.swagger import OpenAPISpecValidator
 import os
 from dotenv import load_dotenv
 
-from utils.swagger_extractor import SwaggerPathExtractor
+from utils.swagger_extractor import PathMethodExtractor
 
 
 def main():
@@ -22,8 +22,8 @@ def main():
     validator.run_validation()
     projectmanager = PlaywrightProjectManager(target_folder)
     projectmanager.setup()
-    extractor = SwaggerPathExtractor(swagger_file)
-    extracted_dir = extractor.extract()
+    extractor = PathMethodExtractor(swagger_file)
+    extracted_dir=extractor.extract_paths_and_methods()
 
     # Step 2: Run LLM over extracted specs
     llm = LLMProcessor(target_folder,extracted_dir,language)

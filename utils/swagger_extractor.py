@@ -1,17 +1,14 @@
 import json
 import tempfile
-
 import yaml
-import jsonref
 from pathlib import Path
 from datetime import datetime
 
-class SwaggerPathExtractor:
+class PathMethodExtractor:
     def __init__(self, swagger_path: str):
         self.swagger_path = Path(swagger_path)
         timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-        self.output_dir = Path(tempfile.gettempdir()) / f"restapi_{timestamp}"
-        print(self.output_dir)
+        self.output_dir = Path(tempfile.gettempdir()) / f"restapi{timestamp}"
         self.output_dir.mkdir(parents=True, exist_ok=True)
 
     def to_plain_obj(self, obj):
@@ -21,37 +18,44 @@ class SwaggerPathExtractor:
             return [self.to_plain_obj(i) for i in obj]
         return obj
 
+    def sanitize_filename(self, path: str, method: str):
+        clean_path = path.strip("/").replace("/", "_").replace("{", "").replace("}", "")
+        filename_prefix = clean_path if clean_path else "root"
+        return f"{filename_prefix}_{method.upper()}"
+
     def load_spec(self):
         with open(self.swagger_path, "r", encoding="utf-8") as f:
             if self.swagger_path.suffix in [".yaml", ".yml"]:
-                raw = yaml.safe_load(f)
+                return yaml.safe_load(f)
             else:
-                raw = json.load(f)
-        resolved = jsonref.replace_refs(raw, merge_props=True)
-        return self.to_plain_obj(resolved)
+                return json.load(f)
 
-    def sanitize_filename(self, path: str):
-        return path.strip("/").replace("/", "_").replace("{", "").replace("}", "") or "root"
+    def extract_paths_and_methods(self):
+        spec = self.load_spec()
+        paths = spec.get("paths", {})
 
-    def extract(self) -> Path:  # ✅ THIS IS THE KEY METHOD!
-        resolved_spec = self.load_spec()
+        for path, methods in paths.items():
+            for method, operation in methods.items():
+                mini_spec = {
+                    "openapi": spec.get("openapi", "3.0.0"),
+                    "info": spec.get("info", {}),
+                    "servers": spec.get("servers", []),
+                    "security": spec.get("security", []),
+                    "paths": {
+                        path: {
+                            method: operation
+                        }
+                    },
+                    "components": spec.get("components", {})
+                }
 
-        for path, path_def in resolved_spec.get("paths", {}).items():
-            mini_spec = {
-                "openapi": resolved_spec.get("openapi", "3.0.0"),
-                "info": resolved_spec.get("info", {}),
-                "servers": resolved_spec.get("servers", []),
-                "security": resolved_spec.get("security", []),
-                "paths": {path: path_def},
-                "components": resolved_spec.get("components", {})
-            }
+                filename = self.sanitize_filename(path, method) + ".json"
+                output_file = self.output_dir / filename
 
-            filename = self.sanitize_filename(path)
-            out_file = self.output_dir / f"{filename}.json"
+                with open(output_file, "w", encoding="utf-8") as f:
+                    json.dump(mini_spec, f, indent=2)
 
-            with open(out_file, "w", encoding="utf-8") as f:
-                json.dump(mini_spec, f, indent=2)
+                print(f"✅ Saved: {output_file}")
 
-            print(f"✅ Extracted {path} → {out_file}")
-
+        print(f"\n📁 Output directory: {self.output_dir}")
         return self.output_dir
