@@ -1,4 +1,5 @@
 from utils.llm_processor import LLMProcessor
+from utils.playwright_config_updater import PlaywrightConfigUpdater
 from utils.playwright_setup import  PlaywrightProjectManager
 from utils.swagger import OpenAPISpecValidator
 import os
@@ -22,6 +23,8 @@ def main():
     validator.run_validation()
     projectmanager = PlaywrightProjectManager(target_folder)
     projectmanager.setup()
+    updater = PlaywrightConfigUpdater(swagger_file, target_folder)
+    updater.run()
     extractor = PathMethodExtractor(swagger_file)
     extracted_dir=extractor.extract_paths_and_methods()
 

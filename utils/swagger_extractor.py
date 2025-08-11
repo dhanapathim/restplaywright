@@ -53,7 +53,7 @@ class PathMethodExtractor:
                 output_file = self.output_dir / filename
 
                 with open(output_file, "w", encoding="utf-8") as f:
-                    json.dump(mini_spec, f, indent=2)
+                    json.dump(mini_spec, f, indent=2,default=str)
 
                 print(f"✅ Saved: {output_file}")
 

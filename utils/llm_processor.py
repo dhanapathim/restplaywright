@@ -68,9 +68,12 @@ Strict rules for generation:
 - For **200/201 success codes**:
   - Use request/response **examples from the spec if provided**.
   - If no examples exist, generate reasonable **sample data** for testing.
-- For **400/404/422/default error codes**: send invalid or missing data to trigger negative cases.
+-I want to generate example API test payloads for the following status codes: 
+- For **200/400/404/422/default error codes**: send invalid or missing data to trigger negative cases.
 - Print both the **request payload** and the **response body** in each test using `console.log`.
 -Generate Playwright API test code where all string assertions (like expect().toContain() or expect().toMatch()) must match the exact case of the actual API response. The test should inspect the API response body and assert against the correct case-sensitive substrings exactly as they appear in the response. Do not assume lowercase or uppercase. Always read and match the actual response structure.
+-Some responses have a specific expected response type (e.g., application/json, application/xml,etc.).
+-Generate Playwright API tests that validate status codes, response schema, required fields, and handle both success and error responses based on my OpenAPI.
 - Validate with Playwright `expect`:
   - `expect(response.status()).toBe(expectedStatus)`
   - If JSON: `expect(body).toHaveProperty(...)`
