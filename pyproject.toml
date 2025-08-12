@@ -1,7 +1,7 @@
 [project]
 name = "playwright-Api-codegen"
 version = "0.1.0"
-description = "code to demo Wheel file."
+description = "Rest Api Swagger to Playwright REST API Code generation."
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
@@ -25,4 +25,4 @@ requires = ["setuptools>=61.0", "wheel", "build"]
 build-backend = "setuptools.build_meta"
 
 [project.scripts]
-playwright-Api-codegen = "RestPlaywright.main:main"
+playwright-restapi-swagger = "RestPlaywright.main:main"
