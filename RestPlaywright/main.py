@@ -1,11 +1,11 @@
-from utils.llm_processor import LLMProcessor
-from utils.playwright_config_updater import PlaywrightConfigUpdater
-from utils.playwright_setup import  PlaywrightProjectManager
-from utils.swagger import OpenAPISpecValidator
+from RestPlaywright.utils.llm_processor import LLMProcessor
+from RestPlaywright.utils.playwright_config_updater import PlaywrightConfigUpdater
+from RestPlaywright.utils.playwright_setup import  PlaywrightProjectManager
+from RestPlaywright.utils.swagger import OpenAPISpecValidator
 import os
 from dotenv import load_dotenv
 
-from utils.swagger_extractor import PathMethodExtractor
+from RestPlaywright.utils.swagger_extractor import PathMethodExtractor
 
 
 def main():
