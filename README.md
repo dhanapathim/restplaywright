@@ -3,9 +3,8 @@ Convert Swagger to REST API Automation tests.
 - This is a `GenAI-powered` tool that enables the automatic generation of `automation test scripts` in playwright. 
 The tool takes Swagger file as input and transforms them into playwright test scripts. Based on these, it auto-generates the corresponding test automation scripts, helping teams `accelerate test development`, ensure `consistency`, and `reduce manual effort` in writing repetitive automation test scripts. 
 
-### Working flow
+### Installation
 
-### Setup
 ### Required env vars
 ```txt
 SWAGGER_FILE_PATH=/Users/sandhyaranikande/swagger.yml //path of the swagger file 
