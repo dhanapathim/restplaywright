@@ -53,6 +53,7 @@ Strict rules for generation:
 -Generate a Playwright test in **{{language}}** for the OpenAPI endpoint [METHOD] [PATH].
 -Use import {{ test, expect }} from '@playwright/test'.
 -No comments, no helper functions, no logging, no console output.
+-Should be formatted
 -Return only the test code without any extra content or explanation.
 - Follows the **exact same structure, formatting, naming, and content-style** as the sample .spec.js file.
 - Use `@playwright/test` with `request` fixture.
