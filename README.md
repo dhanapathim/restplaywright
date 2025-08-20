@@ -56,6 +56,7 @@ playwright/
 - get/copy the wheel file into local system
 - Create new python env `python3 -m venv .venv` and activate it `source <PATH_TO_.ENV>/bin/activate`
 - Run `pip install <PATH_OF_THE_WHEEL_FILE>` (Optional add --force-reinstall as an option).
+- Run `playwright-restapi-swagger`
 
 
 ```
