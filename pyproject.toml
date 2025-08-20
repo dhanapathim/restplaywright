@@ -17,7 +17,8 @@ dependencies = [
     "openai",
     "setuptools>=61.0",
     "wheel",
-    "build"
+    "build",
+    "DeepDiff"
 ]
 
 [build-system]

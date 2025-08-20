@@ -1,3 +1,4 @@
+import os
 import shutil
 import sys
 import subprocess
@@ -72,6 +73,7 @@ class PlaywrightProjectManager:
             self.run_command(cmd, str(tests_dir))
 
             self.clean_playwright_project(tests_dir)
+            self.create_workflow_yml_file(tests_dir)
 
         print("✅ Playwright setup complete.")
         return True
@@ -89,3 +91,56 @@ class PlaywrightProjectManager:
         new_proj_path.mkdir(parents=True, exist_ok=True)
         print(f"📦 Creating new Playwright project in: {new_proj_path}")
         self.initiate_project_setup(new_proj_path)
+
+    def create_workflow_yml_file(self, project_dir: Path):
+        # Define the YAML content
+        yaml_content = """\
+           name: Playwright Tests
+
+           on:
+             push:
+               branches: [ master, main ]
+             workflow_dispatch:
+
+           jobs:
+             test:
+               runs-on: ubuntu-latest
+
+               steps:
+                 - name: Checkout repository
+                   uses: actions/checkout@v4
+
+                 - name: Setup Node.js
+                   uses: actions/setup-node@v4
+                   with:
+                     node-version: '20'
+
+                 - name: Install dependencies
+                   run: npm install
+
+                 - name: Install Playwright browsers
+                   run: npx playwright install --with-deps
+
+                 - name: Run Playwright tests
+                   run: npx playwright test
+
+                 - name: Upload Playwright report
+                   if: always()
+                   uses: actions/upload-artifact@v4
+                   with:
+                     name: playwright-report
+                     path: playwright-report/
+           """
+
+        # Define the file path
+        folder_path = project_dir / ".github/workflows"
+        file_path = os.path.join(folder_path, "playwright.yml")
+
+        # Create the folder structure if it doesn't exist
+        os.makedirs(folder_path, exist_ok=True)
+
+        # Write the YAML content to the file
+        with open(file_path, "w") as f:
+            f.write(yaml_content)
+
+        print(f"Workflow file created at: {file_path}")

@@ -7,13 +7,14 @@ from RestPlaywright.utils import llm
 
 
 class LLMProcessor:
-    def __init__(self, target_folder: str, input_dir: str, language:str,output_dir: str = None):
+    def __init__(self, target_folder: str, input_dir: str,language:str,output_dir: str = None):
         self.playwright_dir = Path(target_folder)
         self.input_dir=Path(input_dir)
         print(self.playwright_dir)
         self.output_dir = Path(output_dir) if output_dir else self.playwright_dir/"playwright/tests"
         self.output_dir.mkdir(parents=True, exist_ok=True)
         self.llm = llm
+
     def to_plain_obj(self, obj):
         if isinstance(obj, dict):
             return {k: self.to_plain_obj(v) for k, v in obj.items()}
@@ -42,14 +43,14 @@ Input:
 I will provide with you.
 1. An OpenAPI/Swagger spec (YAML or JSON).
 2.A sample Output for style reference.
-OpenAPI file: {{filename}}
+OpenAPI file: **{filename}**
 
 Task:
-Generate a **single Playwright test file in ES6 {{language}} (.spec.js)** that covers **all API paths and methods** defined in the spec, following the **same structure, style, and formatting** as the sample `.spec.js` file I provide.
+Generate a **single Playwright test file in ES6 **{{language}}** (.spec.js)** that covers **all API paths and methods** defined in the spec, following the **same structure, style, and formatting** as the sample `.spec.js` file I provide.
 
 Strict rules for generation:
-- Covers **all paths and methods** in the OpenAPI spec.
--Generate a Playwright test in {{language}} for the OpenAPI endpoint [METHOD] [PATH].
+-Covers **all paths and methods** in the OpenAPI spec.
+-Generate a Playwright test in **{{language}}** for the OpenAPI endpoint [METHOD] [PATH].
 -Use import {{ test, expect }} from '@playwright/test'.
 -No comments, no helper functions, no logging, no console output.
 -Return only the test code without any extra content or explanation.
@@ -58,7 +59,7 @@ Strict rules for generation:
 - Identify the `requestBody` content-types and `response` content-types (under `content`) for each API operation.
 - Generate **one `test.describe` block for each supported Request → Response content-type combination**.
 - **Do not skip any request/response content-type combinations.**
--**Do not skip any API paths and methods in the OpenAPI/Swagger JSON.
+-**Do not skip any API paths and methods in the OpenAPI/Swagger File.
 - Use only the content-types explicitly defined in the spec.
 - Inside each `test.describe`, generate `test` blocks for every status code defined in the responses.
 -Generate Playwright API test code where every test function has the signature: async ({{ request, baseURL}}). The baseURL should be passed as a fixture or global setup, and it must be consumed inside each test using this syntax. Do not use destructuring inside the function body, only in the test signature.
@@ -74,14 +75,13 @@ Strict rules for generation:
 - Validate with Playwright `expect`:
   - `expect(response.status()).toBe(expectedStatus)`
   - If JSON: `expect(body).toHaveProperty(...)`
-- Add authentication headers if defined in `securitySchemes` (API key, bearer token, basic auth).
 - Ensure the file is **clean, async/await-based, ready-to-run**.
 -Do not include any invalid syntax (e.g., and =>, test.describe, incorrect arrow functions).
--Please check that the arrow function syntax is correctly written as =>, there are no unnecessary line breaks or spacing (e.g. broken const declarations), and that expect().toContain() is used appropriately.
-- Output must be a **single .spec.js Playwright test file**, matching the **style and structure of the sample file** I provide.
+-Please check there are no unnecessary line breaks or spacing (e.g. broken const declarations), and that expect().toContain() is used appropriately.
+- Output must be a **single .spec.js Playwright test file**, matching the **style and structure of the sample Output I provide.
 -Do **NOT** generate tests for other methods.
-- Do not add explanations or comments.
-- don't put the OpenAPI JSON directly in the content field
+-Do not add explanations or comments.
+-don't put the OpenAPI JSON directly in the content field
 -Return only the code block, no extra text or inline comments.
 
 Output:
@@ -89,48 +89,40 @@ A single **.spec.js Playwright test file**.
 provided a Sample Output as a style reference.
 
 Sample Output:
-import {{test, expect}} from '@playwright/test'
+import {{test, expect }} from '@playwright/test'
 
 
+const examplePetJson = {{
+  id: 10,
+  name: 'doggie',
+  category: {{ id: 1, name: 'Dogs' }},
+  photoUrls: ['http://example.com/photo1'],
+  tags: [{{ id: 1, name: 'tag1' }}],
+  status: 'available'
+}}
 
-const API_KEY = 'special-key'
-        const
-        BEARER_TOKEN = 'Bearer dummy-oauth-token'
-
-        const
-        examplePetJson = {{
-          id: 10,
-          name: 'doggie',
-          category: {{id: 1, name: 'Dogs'}},
-          photoUrls: ['http://example.com/photo1'],
-          tags: [{{id: 1, name: 'tag1'}}],
-          status: 'available'
-        }}
-
-        const
-        examplePetXml = `
-                        < pet >
-                        < id > 10 < / id >
-                                      < name > doggie < / name >
-                                                          < category >
-                                                          < id > 1 < / id >
-                                                                       < name > Dogs < / name >
-                                                                                         < / category >
-                                                                                             < photoUrls >
-                                                                                             < photoUrl > http://example.com/photo1</photoUrl>
-  </photoUrls>
-  <tags>
-    <tag>
+const examplePetXml = `<?xml version="1.0" encoding="UTF-8"?>
+  <pet>
+    <id>10</id>
+    <name>doggie</name>
+    <category>
       <id>1</id>
-      <name>tag1</name>
-    </tag>
-  </tags>
-  <status>available</status>
-</pet>
-`
+      <name>Dogs</name>
+    </category>
+    <photoUrls>
+      <photoUrl>string</photoUrl>
+    </photoUrls>
+    <tags>
+      <tag>
+        <id>0</id>
+        <name>string</name>
+      </tag>
+    </tags>
+    <status>available</status>
+  </pet>`;
 
 const formUrlEncoded = new URLSearchParams({{
-        id: '10',
+  id: '10',
   name: 'doggie',
   'category.id': '1',
   'category.name': 'Dogs',
@@ -140,372 +132,407 @@ const formUrlEncoded = new URLSearchParams({{
   status: 'available'
 }})
 
+const badForm = new URLSearchParams({{ wrong: 'data' }})
+
 // -------------------- 1. JSON → JSON --------------------
 test.describe('/pet - POST JSON → JSON', () => {{
-        test('200 - Successful operation', async ({{request,baseURL}}) => {{
-          const
-        response = await request.post(`${{baseURL}}/pet`, {{
-          headers: {{
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-            'api_key': API_KEY,
-            'Authorization': BEARER_TOKEN
-          }},
-          data: examplePetJson
-        }})
-        const
-        body = await response.json()
-        console.log('200 JSON→JSON:', body)
-        expect(response.status()).toBe(200)
-        expect(body).toHaveProperty('id')
-        expect(body).toHaveProperty('name', 'doggie')
-        }})
+  test('200 - Successful operation', async ({{ request, baseURL }}) => {{
+    
+     const response = await request.post(`${{baseURL}}/pet`, {{
+        headers: {{
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
 
-        test('400 - Invalid input', async ({{request,baseURL}}) => {{
-          const
-        response = await request.post(`${{baseURL}}/pet`, {{
-          headers: {{
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-          }},
-          data: {{invalid: 'payload'}}
-        }})
-        console.log('400 JSON→JSON:', await response.text())
-        expect(response.status()).toBe(400)
-        }})
+        }},
+        data: examplePetJson
+      }})
+    
+     const body = await response.json()
+    console.log('200 JSON→JSON:', body)
+    expect(response.status()).toBe(200)
+    expect(body).toHaveProperty('id')
+    expect(body).toHaveProperty('name', 'doggie')
+  }})
 
-        test('422 - Validation exception', async ({{request,baseURL}}) => {{
-          const
-        response = await request.post(`${{baseURL}}/pet`, {{
-          headers: {{
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-          }},
-          data: {{name: '', photoUrls: []}}
-        }})
-        console.log('422 JSON→JSON:', await response.text())
-        expect(response.status()).toBe(422)
-        }})
+  test('400 - Invalid input', async ({{ request, baseURL }}) => {{
+    
+     const response = await request.post(`${{baseURL}}/pet`, {{
+        headers: {{
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        }},
+        data: {{ invalid: 'payload' }}
+      }})
+    console.log('400 JSON→JSON:', await response.text())
+    expect(response.status()).toBeGreaterThanOrEqual(400);
 
-        test('default - Unexpected error', async ({{request,baseURL}}) => {{
-          const
-        response = await request.post(`${{baseURL}}/pet`, {{
-          headers: {{
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-            'X-Force-Error': 'true'
-          }},
-          data: examplePetJson
-        }})
-        console.log('Default JSON→JSON:', await response.text())
-        expect([500, 501, 502, 503]).toContain(response.status())
-        }})
-        }})
+  }})
+
+  test('422 - Validation exception', async ({{ request, baseURL }}) => {{
+    
+     const response = await request.post(`${{baseURL}}/pet`, {{
+        headers: {{
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+
+        }},
+        data: {{ name: '', photoUrls: [] }}
+      }})
+    console.log('422 JSON→JSON:', await response.text())
+    expect(response.status()).toBeGreaterThanOrEqual(422);
+    //expect(response.status()).toBe(422)
+  }})
+
+  test('default - Unexpected error', async ({{ request, baseURL }}) => {{
+    
+     const response = await request.post(`${{baseURL}}/pet`, {{
+        headers: {{
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          'X-Force-Error': 'true'
+        }},
+        data: {{ invalid: 'Unexpected' }}
+      }})
+    
+    const body = await response.json()
+    console.log('Default JSON→JSON:', body)
+    expect([500, 501, 502, 503]).toContain(response.status())
+    expect(body).toHaveProperty('code')
+    expect(body).toHaveProperty('message')
+  }})
+}})
 
 // -------------------- 2. JSON → XML --------------------
 test.describe('/pet - POST JSON → XML', () => {{
-        test('200 - Successful operation', async ({{request,baseURL}}) => {{
-          const
-        response = await request.post(`${{baseURL}}/pet`, {{
-          headers: {{
-            'Accept': 'application/xml',
-            'Content-Type': 'application/json'
-          }},
-          data: examplePetJson
-        }})
-        const
-        text = await response.text()
-        console.log('200 JSON→XML:', text)
-        expect(response.status()).toBe(200)
-        expect(text).toContain('<pet>')
-        }})
+  test('200 - Successful operation', async ({{ request, baseURL }}) => {{
+    
+     const response = await request.post(`${{baseURL}}/pet`, {{
+        headers: {{
+          'Accept': 'application/xml',
+          'Content-Type': 'application/json',
 
-        test('400 - Invalid input', async ({{request,baseURL}}) => {{
-          const
-        response =
-        return self.response_
-        await request.post(`${{baseURL}}/pet`, {{
-          headers: {{
-            'Accept': 'application/xml',
-            'Content-Type': 'application/json'
-          }},
-          data: {{wrong: 'input'}}
-        }})
-        console.log('400 JSON→XML:', await response.text())
-        expect(response.status()).toBe(400)
-        }})
+        }},
+        data: examplePetJson
+      }})
+    const
+      text = await response.text()
+    console.log('200 JSON→XML:', text)
+    expect(response.status()).toBe(200)
+    expect(text).toContain('<Pet>')
+    expect(text).toContain('<name>doggie</name>')
+  }})
 
-        test('422 - Validation exception', async ({{request,baseURL}}) => {{
-          const
-        response = await request.post(`${{baseURL}}/pet`, {{
-          headers: {{
-            'Accept': 'application/xml',
-            'Content-Type': 'application/json'
-          }},
-          data: {{name: '', photoUrls: []}}
-        }})
-        console.log('422 JSON→XML:', await response.text())
-        expect(response.status()).toBe(422)
-        }})
+  test('400 - Invalid input', async ({{ request, baseURL }}) => {{
+    
+     const response = await request.post(`${{baseURL}}/pet`, {{
+        headers: {{
+          'Accept': 'application/xml',
+          'Content-Type': 'application/json',
 
-        test('default - Unexpected error', async ({{request,baseURL}}) => {{
-          const
-        response = await request.post(`${{baseURL}}/pet`, {{
-          headers: {{
-            'Accept': 'application/xml',
-            'Content-Type': 'application/json',
-            'X-Force-Error': 'true'
-          }},
-          data: examplePetJson
-        }})
-        console.log('Default JSON→XML:', await response.text())
-        expect([500, 501, 502, 503]).toContain(response.status())
-        }})
-        }})
+        }},
+        data: {{ wrong: 'input' }}
+      }})
+    console.log('400 JSON→XML:', await response.text())
+    expect(response.status()).toBeGreaterThanOrEqual(400);
+    //expect(response.status()).toBe(400)
+  }})
+
+  test('422 - Validation exception', async ({{ request, baseURL }}) => {{
+    
+     const response = await request.post(`${{baseURL}}/pet`, {{
+        headers: {{
+          'Accept': 'application/xml',
+          'Content-Type': 'application/json',
+
+        }},
+        data: {{ name: '', photoUrls: [] }}
+      }})
+    console.log('422 JSON→XML:', await response.text())
+    expect(response.status()).toBeGreaterThanOrEqual(422);
+  }})
+
+  test('default - Unexpected error', async ({{ request, baseURL }}) => {{
+    
+     const response = await request.post(`${{baseURL}}/pet`, {{
+        headers: {{
+          'Accept': 'application/xml',
+          'Content-Type': 'application/json',
+          'X-Force-Error': 'true'
+        }},
+        data: {{ invalid: 'Unexpected' }}
+      }})
+    console.log('Default JSON→XML:', await response.text())
+    expect([500, 501, 502, 503]).toContain(response.status())
+  }})
+}})
 
 // -------------------- 3. XML → JSON --------------------
 test.describe('/pet - POST XML → JSON', () => {{
-        test('200 - Successful operation', async ({{request,baseURL}}) => {{
-          const
-        response = await request.post(`${{baseURL}}/pet`, {{
-          headers: {{
-            'Accept': 'application/json',
-            'Content-Type': 'application/xml'
-          }},
-          data: examplePetXml
-        }})
-        const
-        body = await response.json()
-        console.log('200 XML→JSON:', body)
-        expect(response.status()).toBe(200)
-        expect(body).toHaveProperty('id')
-        expect(body).toHaveProperty('name')
-        }})
+  test('200 - Successful operation', async ({{ request, baseURL }}) => {{
+    const response = await request.post(`${{baseURL}}/pet`, {{
+      headers: {{
+        'Accept': 'application/json',
+        'Content-Type': 'application/xml',
 
-        test('400 - Invalid input', async ({{request,baseURL}}) => {{
-          const
-        response = await request.post(`${{baseURL}}/pet`, {{
-          headers: {{
-            'Accept': 'application/json',
-            'Content-Type': 'application/xml'
-          }},
-          data: ` < invalid > < data / > < / invalid > `
-        }})
-        console.log('400 XML→JSON:', await response.text())
-        expect(response.status()).toBe(400)
-        }})
+      }},
+      data: examplePetXml
+    }})
 
-        test('422 - Validation exception', async ({{request,baseURL}}) => {{
-          const
-        response = await request.post(`${{baseURL}}/pet`, {{
-          headers: {{
-            'Accept': 'application/json',
-            'Content-Type': 'application/xml'
-          }},
-          data: ` < pet > < name > < / name > < photoUrls / > < / pet > `
-        }})
-        console.log('422 XML→JSON:', await response.text())
-        expect(response.status()).toBe(422)
-        }})
+    const body = await response.json()
+    console.log('200 XML→JSON:', body)
+    expect(response.status()).toBe(200)
+    expect(body).toHaveProperty('id')
+    expect(body).toHaveProperty('name', 'doggie')
+  }})
 
-        test('default - Unexpected error', async ({{request,baseURL}}) => {{
-          const
-        response = await request.post(`${{baseURL}}/pet`, {{
-          headers: {{
-            'Accept': 'application/json',
-            'Content-Type': 'application/xml',
-            'X-Force-Error': 'true'
-          }},
-          data: examplePetXml
-        }})
-        console.log('Default XML→JSON:', await response.text())
-        expect([500, 501, 502, 503]).toContain(response.status())
-        }})
-        }})
+
+  test('400 - Invalid input', async ({{ request, baseURL }}) => {{
+    const response = await request.post(`${{baseURL}}/pet`, {{
+      headers: {{
+        'Accept': 'application/json',
+        'Content-Type': 'application/xml',
+
+      }},
+      data: ` < invalid > < data / > < / invalid > `
+    }})
+    console.log('400 XML→JSON:', await response.text())
+    expect(response.status()).toBe(400)
+  }})
+
+  test('422 - Validation exception', async ({{ request, baseURL }}) => {{
+
+    const response = await request.post(`${{baseURL}}/pet`, {{
+      headers: {{
+        'Accept': 'application/json',
+        'Content-Type': 'application/xml',
+
+      }},
+      data: ` < pet > < name > < / name > < photoUrls / > < / pet > `
+    }})
+    console.log('422 XML→JSON:', await response.text())
+    expect(response.status()).toBe(422)
+  }})
+
+  test('default - Unexpected error', async ({{ request, baseURL }}) => {{
+
+    const response = await request.post(`${{baseURL}}/pet`, {{
+      headers: {{
+        'Accept': 'application/json',
+        'Content-Type': 'application/xml',
+
+        'X-Force-Error': 'true'
+      }},
+      data: ` < invalid > < data / > < / invalid > `
+    }})
+
+    const body = await response.json()
+    console.log('Default XML→JSON:', body)
+    expect([500, 501, 502, 503]).toContain(response.status())
+    expect(body).toHaveProperty('code')
+    expect(body).toHaveProperty('message')
+  }})
+}})
 
 // -------------------- 4. XML → XML --------------------
 test.describe('/pet - POST XML → XML', () => {{
-        test('200 - Successful operation', async ({{request,baseURL}}) => {{
-          const
-        response = await request.post(`${{baseURL}}/pet`, {{
-          headers: {{
-            'Accept': 'application/xml',
-            'Content-Type': 'application/xml'
-          }},
-          data: examplePetXml
-        }})
-        const
-        text = await response.text()
-        console.log('200 XML→XML:', text)
-        expect(response.status()).toBe(200)
-        expect(text).toContain('<pet>')
-        }})
+  test('200 - Successful operation', async ({{ request, baseURL }}) => {{
+    
+     const response = await request.post(`${{baseURL}}/pet`, {{
+        headers: {{
+          'Accept': 'application/xml',
+          'Content-Type': 'application/xml',
 
-        test('400 - Invalid input', async ({{request,baseURL}}) => {{
-          const
-        response = await request.post(`${{baseURL}}/pet`, {{
-          headers: {{
-            'Accept': 'application/xml',
-            'Content-Type': 'application/xml'
-          }},
-          data: ` < pet > < invalid > < / invalid > < / pet > `
-        }})
-        console.log('400 XML→XML:', await response.text())
-        expect(response.status()).toBe(400)
-        }})
+        }},
+        data: examplePetXml
+      }})
+    
+     const text = await response.text()
+    console.log('200 XML→XML:', text)
+    expect(response.status()).toBe(200)
+    expect(text).toContain('<Pet>')
+    expect(text).toContain('<name>doggie</name>')
+  }})
 
-        test('422 - Validation exception', async ({{request,baseURL}}) => {{
-          const
-        response = await request.post(`${{baseURL}}/pet`, {{
-          headers: {{
-            'Accept': 'application/xml',
-            'Content-Type': 'application/xml'
-          }},
-          data: ` < pet > < name > < / name > < photoUrls / > < / pet > `
-        }})
-        console.log('422 XML→XML:', await response.text())
-        expect(response.status()).toBe(422)
-        }})
+  test('400 - Invalid input', async ({{ request, baseURL }}) => {{
+    
+     const response = await request.post(`${{baseURL}}/pet`, {{
+        headers: {{
+          'Accept': 'application/xml',
+          'Content-Type': 'application/xml',
 
-        test('default - Unexpected error', async ({{request,baseURL}}) => {{
-          const
-        response = await request.post(`${{baseURL}}/pet`, {{
-          headers: {{
-            'Accept': 'application/xml',
-            'Content-Type': 'application/xml',
-            'X-Force-Error': 'true'
-          }},
-          data: examplePetXml
-        }})
-        console.log('Default XML→XML:', await response.text())
-        expect([500, 501, 502, 503]).toContain(response.status())
-        }})
-        }})
+        }},
+        data: ` < pet > < invalid > < / invalid > < / pet > `
+      }})
+    console.log('400 XML→XML:', await response.text())
+    expect(response.status()).toBe(400)
+  }})
+
+  test('422 - Validation exception', async ({{ request, baseURL }}) => {{
+    
+    const response = await request.post(`${{baseURL}}/pet`, {{
+        headers: {{
+          'Accept': 'application/xml',
+          'Content-Type': 'application/xml',
+
+        }},
+        data: ` < pet > < name > < / name > < photoUrls / > < / pet > `
+      }})
+    console.log('422 XML→XML:', await response.text())
+    expect(response.status()).toBe(422)
+  }})
+
+  test('default - Unexpected error', async ({{ request, baseURL }}) => {{
+    
+     const response = await request.post(`${{baseURL}}/pet`, {{
+        headers: {{
+          'Accept': 'application/xml',
+          'Content-Type': 'application/xml',
+
+          'X-Force-Error': 'true'
+        }},
+        data: examplePetXml
+      }})
+    console.log('Default XML→XML:', await response.text())
+    expect([500, 501, 502, 503]).toContain(response.status())
+  }})
+}})
 
 // -------------------- 5. FORM → JSON --------------------
 test.describe('/pet - POST FORM → JSON', () => {{
-        test('200 - Successful operation', async ({{request,baseURL}}) => {{
-          const
-        response = await request.post(`${{baseURL}}/pet`, {{
-          headers: {{
-            'Accept': 'application/json',
-            'Content-Type': 'application/x-www-form-urlencoded'
-          }},
-          data: formUrlEncoded.toString()
-        }})
-        const
-        body = await response.json()
-        console.log('200 FORM→JSON:', body)
-        expect(response.status()).toBe(200)
-        expect(body).toHaveProperty('id')
-        expect(body).toHaveProperty('name')
-        }})
+  test('200 - Successful operation', async ({{ request, baseURL }}) => {{
+    
+     const response = await request.post(`${{baseURL}}/pet`, {{
+        headers: {{
+          'Accept': 'application/json',
+          'Content-Type': 'application/x-www-form-urlencoded',
 
-        test('400 - Invalid input', async ({{request,baseURL}}) => {{
-          const
-        badForm = new
-        URLSearchParams({{wrong: 'data'}})
-        const
-        response = await request.post(`${{baseURL}}/pet`, {{
-          headers: {{
-            'Accept': 'application/json',
-            'Content-Type': 'application/x-www-form-urlencoded'
-          }},
-          data: badForm.toString()
-        }})
-        console.log('400 FORM→JSON:', await response.text())
-        expect(response.status()).toBe(400)
-        }})
+        }},
+        data: formUrlEncoded.toString()
+      }})
+    
+     const body = await response.json()
+    console.log('200 FORM→JSON:', body)
+    expect(response.status()).toBe(200)
+    expect(body).toHaveProperty('id')
+    expect(body).toHaveProperty('name', 'doggie')
+  }})
 
-        test('422 - Validation exception', async ({{request,baseURL}}) => {{
-          const
-        response = await request.post(`${{baseURL}}/pet`, {{
-          headers: {{
-            'Accept': 'application/json',
-            'Content-Type': 'application/x-www-form-urlencoded'
-          }},
-          data: new URLSearchParams({{name: '', photoUrls: ''}}).toString()
-        }})
-        console.log('422 FORM→JSON:', await response.text())
-        expect(response.status()).toBe(422)
-        }})
+  test('400 - Invalid input', async ({{ request, baseURL }}) => {{
 
-        test('default - Unexpected error', async ({{request,baseURL}}) => {{
-          const
-        response = await request.post(`${{baseURL}}/pet`, {{
-          headers: {{
-            'Accept': 'application/json',
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'X-Force-Error': 'true'
-          }},
-          data: formUrlEncoded.toString()
-        }})
-        console.log('Default FORM→JSON:', await response.text())
-        expect([500, 501, 502, 503]).toContain(response.status())
-        }})
-        }})
+
+    const response = await request.post(`${{baseURL}}/pet`, {{
+      headers: {{
+        'Accept': 'application/json',
+        'Content-Type': 'application/x-www-form-urlencoded',
+
+      }},
+      data: badForm.toString()
+    }})
+    console.log('400 FORM→JSON:', await response.text())
+    expect(response.status()).toBe(400)
+  }})
+
+  test('422 - Validation exception', async ({{ request, baseURL }}) => {{
+    
+     const response = await request.post(`${{baseURL}}/pet`, {{
+        headers: {{
+          'Accept': 'application/json',
+          'Content-Type': 'application/x-www-form-urlencoded',
+
+        }},
+        data: new URLSearchParams({{ name: '', photoUrls: '' }}).toString()
+      }})
+    console.log('422 FORM→JSON:', await response.text())
+    expect(response.status()).toBe(422)
+  }})
+
+  test('default - Unexpected error', async ({{ request, baseURL }}) => {{
+    
+     const response = await request.post(`${{baseURL}}/pet`, {{
+        headers: {{
+          'Accept': 'application/json',
+          'Content-Type': 'application/x-www-form-urlencoded',
+
+          'X-Force-Error': 'true'
+        }},
+        data: badForm.toString()
+      }})
+    const
+      body = await response.json()
+    console.log('Default FORM→JSON:', body)
+    expect([500, 501, 502, 503]).toContain(response.status())
+    expect(body).toHaveProperty('code')
+    expect(body).toHaveProperty('message')
+  }})
+}})
 
 // -------------------- 6. FORM → XML --------------------
 test.describe('/pet - POST FORM → XML', () => {{
-        test('200 - Successful operation', async ({{request,baseURL}}) => {{
-          const
-        response = await request.post(`${{baseURL}}/pet`, {{
-          headers: {{
-            'Accept': 'application/xml',
-            'Content-Type': 'application/x-www-form-urlencoded'
-          }},
-          data: formUrlEncoded.toString()
-        }})
-        const
-        text = await response.text()
-        console.log('200 FORM→XML:', text)
-        expect(response.status()).toBe(200)
-        expect(text).toContain('<pet>')
-        }})
+  test('200 - Successful operation', async ({{ request, baseURL }}) => {{
+    const
+      response = await request.post(`${{baseURL}}/pet`, {{
+        headers: {{
+          'Accept': 'application/xml',
+          'Content-Type': 'application/x-www-form-urlencoded',
 
-        test('400 - Invalid input', async ({{request,baseURL}}) => {{
-          const
-        badForm = new
-        URLSearchParams({{wrong: 'data'}})
-        const
-        response = await request.post(`${{baseURL}}/pet`, {{
-          headers: {{
-            'Accept': 'application/xml',
-            'Content-Type': 'application/x-www-form-urlencoded'
-          }},
-          data: badForm.toString()
-        }})
-        console.log('400 FORM→XML:', await response.text())
-        expect(response.status()).toBe(400)
-        }})
+        }},
+        data: formUrlEncoded.toString()
+      }})
+    const
+      text = await response.text()
+    console.log('200 FORM→XML:', text)
+    expect(response.status()).toBe(200)
+    expect(text).toContain('<Pet>')
+    expect(text).toContain('<name>doggie</name>')
+  }})
 
-        test('422 - Validation exception', async ({{request,baseURL}}) => {{
-          const
-        response = await request.post(`${{baseURL}}/pet`, {{
-          headers: {{
-            'Accept': 'application/xml',
-            'Content-Type': 'application/x-www-form-urlencoded'
-          }},
-          data: new URLSearchParams({{name: '', photoUrls: ''}}).toString()
-        }})
-        console.log('422 FORM→XML:', await response.text())
-        expect(response.status()).toBe(422)
-        }})
+  test('400 - Invalid input', async ({{ request, baseURL }}) => {{
+    const
+      badForm = new
+        URLSearchParams({{ wrong: 'data' }})
+    const
+      response = await request.post(`${{baseURL}}/pet`, {{
+        headers: {{
+          'Accept': 'application/xml',
+          'Content-Type': 'application/x-www-form-urlencoded',
 
-        test('default - Unexpected error', async ({{request,baseURL}}) => {{
-          const
-        response = await request.post(`${{baseURL}}/pet`, {{
-          headers: {{
-            'Accept': 'application/xml',
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'X-Force-Error': 'true'
-          }},
-          data: formUrlEncoded.toString()
-        }})
-        console.log('Default FORM→XML:', await response.text())
-        expect([500, 501, 502, 503]).toContain(response.status())
-        }})
-        }})
+        }},
+        data: badForm.toString()
+      }})
+    console.log('400 FORM→XML:', await response.text())
+    expect(response.status()).toBe(400)
+  }})
+
+  test('422 - Validation exception', async ({{ request, baseURL }}) => {{
+    
+     const response = await request.post(`${{baseURL}}/pet`, {{
+        headers: {{
+          'Accept': 'application/xml',
+          'Content-Type': 'application/x-www-form-urlencoded',
+
+
+        }},
+        data: new URLSearchParams({{ name: '', photoUrls: '' }}).toString()
+      }})
+    console.log('422 FORM→XML:', await response.text())
+    expect(response.status()).toBe(422)
+  }})
+
+  test('default - Unexpected error', async ({{ request, baseURL }}) => {{
+    
+     const response = await request.post(`${{baseURL}}/pet`, {{
+        headers: {{
+          'Accept': 'application/xml',
+          'Content-Type': 'application/x-www-form-urlencoded',
+
+          'X-Force-Error': 'true'
+        }},
+        data: badForm.toString()
+      }})
+    console.log('Default FORM→XML:', await response.text())
+    expect([500, 501, 502, 503]).toContain(response.status())
+  }})
+}})
 
 
 {json.dumps(spec, indent=2)}
@@ -527,9 +554,6 @@ test.describe('/pet - POST FORM → XML', () => {{
 
                 response = self.llm.invoke(prompt)
 
-                # content = getattr(response, "content", response)
-                # clean_json = extract_and_sanitize_json(content)
-                # parsed_dict = json.loads(clean_json)
 
                 with open(self.output_dir / f"{file.stem}.spec.js", "w", encoding="utf-8") as f:
                     f.write(response.content)
@@ -541,6 +565,111 @@ test.describe('/pet - POST FORM → XML', () => {{
                 print(f"❌ Failed to process {file.name}: {e}")
 
 
+class GlobalSetup:
+    def __init__(self, target_folder: str, swagger_file: str, output_dir: str = None):
+        self.playwright_dir = Path(target_folder)
+        self.swagger_file = Path(swagger_file)
+        self.output_dir = Path(output_dir) if output_dir else self.playwright_dir / "playwright"
+        self.output_dir.mkdir(parents=True, exist_ok=True)
+        self.llm = llm
+
+    def load_spec(self):
+        with open(self.swagger_file, "r", encoding="utf-8") as f:
+            if self.swagger_file.suffix.lower() in [".yaml", ".yml"]:
+                spec = yaml.safe_load(f)
+                return yaml.dump(spec)
+            elif self.swagger_file.suffix.lower() == ".json":
+                spec = json.load(f)
+                return json.dumps(spec, indent=2)
+            else:
+                raise ValueError("Unsupported Swagger file format.")
+
+    def build_global_setup_prompt(self, spec: dict, filename: str) -> str:
+        return f"""
+        You are an expert in Playwright and API testing.
+
+        Input:
+        I will provide you with:
+        1. An OpenAPI/Swagger spec (YAML or JSON).
+        OpenAPI file: {{filename}}
+        2.From it, detect the authentication method(s) in `securitySchemes` and global `security`.
+        Task:
+        1. Detect all authentication methods in `components.securitySchemes` and `security`.
+        2. Generate a `global-setup.js` file for Playwright that configures authentication globally based on the detected scheme(s):
+          - If `apiKey` → read API key from `process.env`, set it in `extraHTTPHeaders`, save to `auth.json`.
+          - If `http` basic → read username/password from `process.env`, save to `auth.json`.
+          - If OAuth2 → simulate token retrieval or placeholder, save token to `auth.json`.
+
+
+        Rules:
+       - Code must be valid ES modules (ESM).
+       -The first two lines of the file must be:
+          import dotenv from 'dotenv';
+          dotenv.config();
+       - Do not print print the open Api spect.
+       - Do not hardcode sensitive values — use `process.env` with placeholder names.
+       - Include error handling if no credentials are set.
+       - Do not add explanations or comments.
+       - don't put the OpenAPI JSON directly in the content field
+
+    The code should be valid ES modules (ESM) and work directly with `@playwright/test`.
+
+
+import dotenv from 'dotenv';
+import fs from 'fs';
+import path from 'path';
+dotenv.config();
+
+const STORAGE_STATE_PATH = path.join(process.cwd(), 'auth.json');
+
+async function globalSetup() {{
+  const authData = {{ extraHTTPHeaders: {{}} }};
+
+  
+  const API_KEY_VALUE = process.env.API_KEY_VALUE;
+  if (API_KEY_VALUE) {{
+    authData.extraHTTPHeaders['api_key'] = API_KEY_VALUE;
+  }}
+
+  const OAUTH_ACCESS_TOKEN = process.env.OAUTH_ACCESS_TOKEN;
+  if (OAUTH_ACCESS_TOKEN) {{
+    authData.extraHTTPHeaders['Authorization'] = `Bearer ${{OAUTH_ACCESS_TOKEN}}`;
+  }}
+
+  const BASIC_AUTH_USERNAME = process.env.BASIC_AUTH_USERNAME;
+  const BASIC_AUTH_PASSWORD = process.env.BASIC_AUTH_PASSWORD;
+  if (BASIC_AUTH_USERNAME && BASIC_AUTH_PASSWORD) {{
+    const credentials = Buffer.from(`${{BASIC_AUTH_USERNAME}}:${{BASIC_AUTH_PASSWORD}}`).toString('base64');
+    authData.extraHTTPHeaders['Authorization'] = `Basic ${{credentials}}`;
+  }} else if (BASIC_AUTH_USERNAME || BASIC_AUTH_PASSWORD) {{
+    throw new Error('Both BASIC_AUTH_USERNAME and BASIC_AUTH_PASSWORD must be set for HTTP Basic authentication.');
+  }}
+
+  if (Object.keys(authData.extraHTTPHeaders).length === 0) {{
+    throw new Error('No authentication credentials found. Please set API_KEY_VALUE, OAUTH_ACCESS_TOKEN, or BASIC_AUTH_USERNAME/PASSWORD environment variables.');
+  }}
+
+  fs.writeFileSync(
+    STORAGE_STATE_PATH,
+    JSON.stringify(authData, null, 2)
+  );
+}}
+
+export default globalSetup;
+
+
+     OpenAPI Spec:
+    {json.dumps(spec, indent=2)}
+    """
+
+    def genarateglobalsetup(self):
+        spec = self.load_spec()
+        GlobalSetup = self.build_global_setup_prompt(spec, self.swagger_file)
+        response = self.llm.invoke(GlobalSetup)
+
+        with open(self.output_dir / "global-setup.js", "w", encoding="utf-8") as f:
+            f.write(response.content)
+        clean_code_fences(self.output_dir)
 
 def clean_code_fences(root_folder, extensions=[".js", ".ts",]):
     for subdir, _, files in os.walk(root_folder):

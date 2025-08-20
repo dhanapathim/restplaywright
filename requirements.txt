@@ -11,3 +11,4 @@ openai
 setuptools>=61.0
 wheel
 build
+DeepDiff

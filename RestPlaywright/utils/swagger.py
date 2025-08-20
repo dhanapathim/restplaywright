@@ -2,7 +2,7 @@ import sys
 import json
 import yaml
 from pathlib import Path
-from openapi_spec_validator import validate_spec
+from openapi_spec_validator import validate
 from openapi_spec_validator.validation.exceptions import OpenAPIValidationError
 
 
@@ -53,7 +53,7 @@ class OpenAPISpecValidator:
 
     def _validate_spec(self, spec: dict):
         try:
-            validate_spec(spec)
+            validate(spec)
             print("✅ OpenAPI 3.x spec is valid.")
         except RecursionError:
             print("❌ Validation failed due to circular or deeply nested references (maximum recursion depth).")

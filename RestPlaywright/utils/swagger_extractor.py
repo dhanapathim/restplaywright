@@ -1,4 +1,5 @@
 import json
+import os
 import tempfile
 import yaml
 from pathlib import Path
@@ -36,26 +37,58 @@ class PathMethodExtractor:
 
         for path, methods in paths.items():
             for method, operation in methods.items():
-                mini_spec = {
-                    "openapi": spec.get("openapi", "3.0.0"),
-                    "info": spec.get("info", {}),
-                    "servers": spec.get("servers", []),
-                    "security": spec.get("security", []),
-                    "paths": {
-                        path: {
-                            method: operation
-                        }
-                    },
-                    "components": spec.get("components", {})
-                }
-
-                filename = self.sanitize_filename(path, method) + ".json"
-                output_file = self.output_dir / filename
-
-                with open(output_file, "w", encoding="utf-8") as f:
-                    json.dump(mini_spec, f, indent=2,default=str)
-
-                print(f"✅ Saved: {output_file}")
-
+                self.get_file_name(spec, path, method, operation)
         print(f"\n📁 Output directory: {self.output_dir}")
         return self.output_dir
+
+    def get_file_name(self, spec, path, method, operation):
+        mini_spec = {
+            "openapi": spec.get("openapi", "3.0.0"),
+            "info": spec.get("info", {}),
+            "servers": spec.get("servers", []),
+            "security": spec.get("security", []),
+            "paths": {
+                path: {
+                    method: operation
+                }
+            },
+            "components": spec.get("components", {})
+        }
+
+        filename = self.sanitize_filename(path, method) + ".json"
+        output_file = self.output_dir / filename
+
+        with open(output_file, "w", encoding="utf-8") as f:
+            json.dump(mini_spec, f, indent=2)
+
+        print(f"✅ Saved: {output_file}")
+
+    def get_update_add_paths_and_methods(self, added_paths, updated_paths):
+        spec = self.load_spec()
+        paths = spec.get("paths", {})
+
+        for path, methods in paths.items():
+            if path in updated_paths or path in added_paths:
+                for method, operation in methods.items():
+                    self.get_file_name(spec, path, method, operation)
+        return self.output_dir
+
+
+
+    def remove_files(self,deleted_paths, target_folder):
+        try:
+            clean_data = [path.strip("/").replace("/", "_").replace("{", "").replace("}", "") for path in deleted_paths]
+            target_folder += "/playwright/tests"
+            for file in os.listdir(target_folder):
+                file_path = os.path.join(target_folder, file)
+
+                if not os.path.isfile(file_path):
+                    continue  # Skip directories
+                if any(file.startswith(prefix) for prefix in clean_data):
+                    try:
+                        os.remove(file_path)
+                        print(f"Deleted: {file_path}")
+                    except Exception as e:
+                        print(f"Failed to delete {file_path}: {e}")
+        except Exception as e:
+            print(f"Error accessing folder {target_folder}: {e}")
