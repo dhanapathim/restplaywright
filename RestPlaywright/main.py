@@ -7,6 +7,7 @@ import os
 from dotenv import load_dotenv
 
 from RestPlaywright.utils.swagger_extractor import PathMethodExtractor
+from RestPlaywright.utils.swagger_to_readme import SwaggerToReadme
 
 
 def main():
@@ -46,6 +47,8 @@ def main():
     if result is not None and result["deleted"] is not None:
         extractor.remove_files(result["deleted"], target_folder)
 
+    Readme=SwaggerToReadme(swagger_file,target_folder)
+    Readme.generate_readme();
 
 if __name__ == "__main__":
      main()
