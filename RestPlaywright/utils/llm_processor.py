@@ -90,7 +90,8 @@ A single **.spec.js Playwright test file**.
 provided a Sample Output as a style reference.
 
 Sample Output:
-import {{test, expect }} from '@playwright/test'
+import {{expect }} from '@playwright/test'
+import {{ test }} from '../fixtures/apiWithAllure'
 
 
 const examplePetJson = {{
@@ -618,6 +619,7 @@ class GlobalSetup:
 
 import dotenv from 'dotenv';
 import fs from 'fs';
+import on from os;
 import path from 'path';
 dotenv.config();
 
@@ -654,6 +656,19 @@ async function globalSetup() {{
     STORAGE_STATE_PATH,
     JSON.stringify(authData, null, 2)
   );
+
+  const envFilePath = "./allure-results/environment.properties";
+
+  const envData = [
+    `OS=${{os.type()}} ${{os.release()}}`,
+    `Node=${{process.version}}`,
+    `BaseURL=${{process.env.BASE_URL || "http://localhost:3000"}}`,
+    `Browser=Playwright Default`,
+    `Project=PetStore`,
+    `Organization=Accion Labs`,
+  ].join("\n");
+
+  fs.writeFileSync(envFilePath, envData, "utf-8");
 }}
 
 export default globalSetup;

@@ -74,7 +74,7 @@ class PlaywrightProjectManager:
 
             self.clean_playwright_project(tests_dir)
             self.create_workflow_yml_file(tests_dir)
-
+            self.create_api_fixtures_file(tests_dir)
         print("✅ Playwright setup complete.")
         return True
 
@@ -123,13 +123,22 @@ class PlaywrightProjectManager:
 
                  - name: Run Playwright tests
                    run: npx playwright test
-
-                 - name: Upload Playwright report
-                   if: always()
+                   continue-on-error: true
+                 - name: 🧰 Install Allure CLI
+                   run: |
+                     wget https://github.com/allure-framework/allure2/releases/download/2.27.0/allure-2.27.0.tgz
+                     tar -xvzf allure-2.27.0.tgz
+                     sudo mv allure-2.27.0 /opt/allure
+                     sudo ln -s /opt/allure/bin/allure /usr/bin/allure
+                     allure --version
+                 - name: 🧾 Generate Allure report
+                   run: |
+                     allure generate allure-results --clean -o allure-report   
+                 - name: 📤 Upload Allure report artifact
                    uses: actions/upload-artifact@v4
                    with:
-                     name: playwright-report
-                     path: playwright-report/
+                     name: allure-report
+                     path: allure-report
            """
 
         # Define the file path
@@ -144,3 +153,86 @@ class PlaywrightProjectManager:
             f.write(yaml_content)
 
         print(f"Workflow file created at: {file_path}")
+
+    def create_api_fixtures_file(self, project_dir: Path):
+        # Define the YAML content
+        yaml_content = """\
+import { test as base } from '@playwright/test';
+import * as testInfo from "allure-js-commons";
+ 
+export const test = base.extend({
+  request: async ({ request }, use) => {
+    const wrapped = new Proxy(request, {
+      get(target, prop) {
+        if (typeof target[prop] === 'function') {
+          return async (...args) => {
+            // ---- Before API Call ----
+            await test.step(`API Request: ${prop.toString().toUpperCase()} ${args[0]}`, async () => {
+              await testInfo.attachment(
+                'Request Details',
+                JSON.stringify(
+                  {
+                    method: prop.toString().toUpperCase(),
+                    url: args[0],
+                    options: args[1] || {}
+                  },
+                  null,
+                  2
+                ),
+                'application/json'
+              );
+            });
+ 
+            const response = await target[prop](...args);
+ 
+            let respBody;
+            try {
+              respBody = await response.json();
+            } catch {
+              respBody = await response.text();
+            }
+ 
+            const respHeaders = response.headers();
+ 
+            await test.step(`API Response: ${response.status()} ${args[0]}`, async () => {
+              await testInfo.attachment(
+                'Response Details',
+                JSON.stringify(
+                  {
+                    status: response.status(),
+                    headers: respHeaders,
+                    cookies: respHeaders['set-cookie'] || 'No cookies',
+                    contentType: respHeaders['content-type'] || 'N/A',
+                    body: respBody
+                  },
+                  null,
+                  2
+                ),
+                'application/json'
+              );
+            });
+ 
+            return response;
+          };
+        }
+        return target[prop];
+      }
+    });
+ 
+    await use(wrapped);
+  }
+});
+           """
+
+        # Define the file path
+        folder_path = project_dir / "fixtures"
+        file_path = os.path.join(folder_path, "apiWithAllure.js")
+
+        # Create the folder structure if it doesn't exist
+        os.makedirs(folder_path, exist_ok=True)
+
+        # Write the YAML content to the file
+        with open(file_path, "w") as f:
+            f.write(yaml_content)
+
+        print(f"fixtures file created at: {file_path}")

@@ -88,7 +88,7 @@ class PlaywrightConfigUpdater:
             # Reporter exists but without allure — replace with allure only
             return re.sub(
                 r"reporter:\s*\[[^\]]*\],?",
-                "reporter: [ ['allure-playwright'] ],",
+                "reporter: [ ['allure-playwright'],['html'] ],",
                 content,
                 flags=re.DOTALL
             )
