@@ -598,7 +598,8 @@ class GlobalSetup:
         2.From it, detect the authentication method(s) in `securitySchemes` and global `security`.
         Task:
         1. Detect all authentication methods in `components.securitySchemes` and `security`.
-        2. Generate a `global-setup.js` file for Playwright that configures authentication globally based on the detected scheme(s):
+        2. Don't Write the securitySchemes in the global_Setup.js
+        3. Generate a `global-setup.js` file for Playwright that configures authentication globally based on the detected scheme(s):
           - If `apiKey` → read API key from `process.env`, set it in `extraHTTPHeaders`, save to `auth.json`.
           - If `http` basic → read username/password from `process.env`, save to `auth.json`.
           - If OAuth2 → simulate token retrieval or placeholder, save token to `auth.json`.
@@ -614,6 +615,7 @@ class GlobalSetup:
        - Include error handling if no credentials are set.
        - Do not add explanations or comments.
        - don't put the OpenAPI JSON directly in the content field
+       - don't Write the securitySchemes in the global_Setup.js
 
     The code should be valid ES modules (ESM) and work directly with `@playwright/test`.
 
@@ -658,8 +660,14 @@ async function globalSetup() {{
     JSON.stringify(authData, null, 2)
   );
 
-  const envFilePath = "./allure-results/environment.properties";
+  //const envFilePath = "./allure-results/environment.properties";
+const resultsDir = path.join(__dirname, "allure-results");
+  const envFilePath = path.join(resultsDir, "environment.properties");
 
+  // Ensure allure-results directory exists
+  if (!fs.existsSync(resultsDir)) {{
+    fs.mkdirSync(resultsDir, {{ recursive: true }});
+  }}
   const envData = [
     `OS=${{os.type()}} ${{os.release()}}`,
     `Node=${{process.version}}`,
