@@ -51,7 +51,8 @@ Generate a **single Playwright test file in ES6 **{{language}}** (.spec.js)** th
 Strict rules for generation:
 -Covers **all paths and methods** in the OpenAPI spec.
 -Generate a Playwright test in **{{language}}** for the OpenAPI endpoint [METHOD] [PATH].
--Use import {{ test, expect }} from '@playwright/test'.
+-Use import {{ expect }} from '@playwright/test'.
+-Use import {{ test }} from '../fixtures/apiWithAllure'.
 -No comments, no helper functions, no logging, no console output.
 -Should be formatted
 -Return only the test code without any extra content or explanation.

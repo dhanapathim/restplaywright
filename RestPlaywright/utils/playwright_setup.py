@@ -66,7 +66,7 @@ class PlaywrightProjectManager:
 
         commands = [
             "npm init playwright@latest -- --yes --lang=js --quiet --install-deps",
-            "npm i -D allure-playwright dotenv"
+            "npm i -D allure-playwright dotenv allure-js-commons"
         ]
 
         for cmd in commands:
@@ -90,7 +90,7 @@ class PlaywrightProjectManager:
         new_proj_path = self.base_path / "playwright"
         new_proj_path.mkdir(parents=True, exist_ok=True)
         print(f"📦 Creating new Playwright project in: {new_proj_path}")
-        self.initiate_project_setup(new_proj_path)
+        return self.initiate_project_setup(new_proj_path)
 
     def create_workflow_yml_file(self, project_dir: Path):
         # Define the YAML content

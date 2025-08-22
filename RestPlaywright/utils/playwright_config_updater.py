@@ -87,8 +87,9 @@ class PlaywrightConfigUpdater:
         if "reporter:" in content:
             # Reporter exists but without allure — replace with allure only
             return re.sub(
-                r"reporter:\s*\[[^\]]*\],?",
-                "reporter: [ ['allure-playwright'],['html'] ],",
+                #r"reporter:\s*\[[^\]]*\],?",
+                   r"reporter:\s*[^,}]+,?",
+                "reporter: [['list'], ['allure-playwright'],['html'] ],\n",
                 content,
                 flags=re.DOTALL
             )
@@ -98,7 +99,7 @@ class PlaywrightConfigUpdater:
             if re.search(pattern, content):
                 return re.sub(
                     pattern,
-                    r"\1reporter: [ ['allure-playwright'] ],\n  ",
+                    r"\1reporter: [[list], ['allure-playwright'],['html'] ],\n  ",
                     content
                 )
         return content
