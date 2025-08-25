@@ -152,7 +152,7 @@ class PlaywrightProjectManager:
         os.makedirs(folder_path, exist_ok=True)
 
         # Write the YAML content to the file
-        with open(file_path, "w") as f:
+        with open(file_path, "w",encoding="utf-8") as f:
             f.write(yaml_content)
 
         print(f"Workflow file created at: {file_path}")

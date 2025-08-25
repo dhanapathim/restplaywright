@@ -58,7 +58,8 @@ It is designed to:
 - Support **CI/CD integration**  
 
 ---
-##{title}
+
+## {title}
 
 {description if description else ''}
 
