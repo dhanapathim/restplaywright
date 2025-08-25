@@ -88,7 +88,8 @@ class PlaywrightProjectManager:
             print("✅ Skipping setup — Playwright project already exists.")
             return
 
-        new_proj_path = self.base_path / "playwright"
+        #new_proj_path = self.base_path / "playwright"
+        new_proj_path = self.base_path
         new_proj_path.mkdir(parents=True, exist_ok=True)
         print(f"📦 Creating new Playwright project in: {new_proj_path}")
         return self.initiate_project_setup(new_proj_path)
@@ -102,7 +103,8 @@ class PlaywrightProjectManager:
              push:
                branches: [ master, main ]
              workflow_dispatch:
-
+           env:
+             API_KEY_VALUE : test
            jobs:
              test:
                runs-on: ubuntu-latest
@@ -245,11 +247,11 @@ export const test = base.extend({
             """
             ignores = [
                 "# Playwright",
-                "node_modules/",
+                "/node_modules/",
                 "/test-results/",
                 "/playwright-report/",
                 "/blob-report/",
-                "/playwright/.cache/",
+                "/.cache/",
                 ".DS_Store",
                 "/allure-report/",
                 "/allure-results/",

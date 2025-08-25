@@ -78,7 +78,7 @@ class PathMethodExtractor:
     def remove_files(self,deleted_paths, target_folder):
         try:
             clean_data = [path.strip("/").replace("/", "_").replace("{", "").replace("}", "") for path in deleted_paths]
-            target_folder += "/playwright/tests"
+            target_folder += "/tests"
             for file in os.listdir(target_folder):
                 file_path = os.path.join(target_folder, file)
 

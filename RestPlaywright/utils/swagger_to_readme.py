@@ -6,7 +6,7 @@ from pathlib import Path
 class SwaggerToReadme:
     def __init__(self, swagger_path, output_path):
         self.swagger_path = Path(swagger_path)
-        self.output_path = Path(output_path)/"playwright/README.MD"
+        self.output_path = Path(output_path)/"README.MD"
         self.swagger = self._load_swagger()
 
     def _load_swagger(self):
@@ -45,7 +45,20 @@ class SwaggerToReadme:
             auth_summary.append(f"- {name}: {scheme_type} ({scheme_in})")
 
         # Build README content
-        READMEcontent = f"""# {title}
+        READMEcontent = f""" 
+# 🧪 QA REST Automation Testing Workflow
+
+This repository contains an automated **REST API testing framework** powered by **Playwright**.  
+It is designed to:  
+
+- Parse **Swagger/OpenAPI** specifications  
+- Auto-generate **Playwright tests** for each endpoint  
+- Validate **request → response content-types** (JSON / XML)  
+- Produce detailed reports with **Allure**  
+- Support **CI/CD integration**  
+
+---
+##{title}
 
 {description if description else ''}
 

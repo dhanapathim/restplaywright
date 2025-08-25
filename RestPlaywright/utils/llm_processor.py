@@ -11,7 +11,7 @@ class LLMProcessor:
         self.playwright_dir = Path(target_folder)
         self.input_dir=Path(input_dir)
         print(self.playwright_dir)
-        self.output_dir = Path(output_dir) if output_dir else self.playwright_dir/"playwright/tests"
+        self.output_dir = Path(output_dir) if output_dir else self.playwright_dir/"tests"
         self.output_dir.mkdir(parents=True, exist_ok=True)
         self.llm = llm
 
@@ -572,7 +572,7 @@ class GlobalSetup:
     def __init__(self, target_folder: str, swagger_file: str, output_dir: str = None):
         self.playwright_dir = Path(target_folder)
         self.swagger_file = Path(swagger_file)
-        self.output_dir = Path(output_dir) if output_dir else self.playwright_dir / "playwright"
+        self.output_dir = Path(output_dir) if output_dir else self.playwright_dir
         self.output_dir.mkdir(parents=True, exist_ok=True)
         self.llm = llm
 

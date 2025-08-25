@@ -8,7 +8,7 @@ class PlaywrightConfigUpdater:
     def __init__(self, swagger_path, project_path):
         self.swagger_path = swagger_path
         self.project_path = project_path
-        self.config_path = os.path.join(project_path, 'playwright/playwright.config.js')
+        self.config_path = os.path.join(project_path, 'playwright.config.js')
 
     # ---------- Public API ----------
     def run(self):
@@ -133,6 +133,3 @@ class PlaywrightConfigUpdater:
     def _write_file(self, path, content):
         with open(path, 'w', encoding='utf-8') as f:
             f.write(content)
-
-
-
