@@ -7,18 +7,30 @@ The tool takes Swagger file as input and transforms them into playwright test sc
 
 ### Required env vars
 ```txt
-SWAGGER_FILE_PATH=/Users/sandhyaranikande/swagger.yml //path of the swagger file 
-TARGET_FOLDER=/Users/sandhyaranikande/SampleTest // where the genrated automation scripts should saved
-LLM_MODEL=gemini-2.0-flash-thinking-exp-1219 //llm model
-LLM_MODEL_PROVIDER=google_genai //llm provide
-GEMINI_API_KEY= //api key of llm
-TARGET_LANGUAGE=JavaScript 
+# path to the directory where the Swagger files are stored
+SWAGGER_FILE_PATH=/Users/dhanapathimarepalli/projects/AIGenAI/swagger
+
+# The folder where the generated Playwright code will be saved.
+TARGET_FOLDER=/Users/dhanapathimarepalli/projects/AIGenAI/playwrightgenerated
+
+# The LLM Model used
+LLM_MODEL=gemini-2.0-flash-thinking-exp-1219
+
+# The LLM Model Provider used
+LLM_MODEL_PROVIDER=google_genai
+
+# The API key for the LLM Model Provider
+GEMINI_API_KEY=AIza45DRYbV1sPtxAd76yxEfjI2hsEA84mQTadg
+
+# The target programming language for the generated Playwright code (e.g., JavaScript, Python, TypeScript).
+TARGET_LANGUAGE=JavaScript
 ```
 
 ### Steps to generate automation scripts :
 - Save the swagger file in local system.
+- Create new python env `python3` or `python`  `-m venv .venv` and activate it `source <PATH_TO_.ENV>/bin/activate` or `.venv\Scripts\activate`
 - Configure the required environment variables and install dependencies by executing: `pip install -r requirements.txt`  
-- On execution `(python3 main.py)`, the playwright project will be generated with all tests(separate test file for each and every path and its corresponding http method )
+- On execution `python3 or python -m RestPlaywright.main`, the playwright project will be generated with all tests(separate test file for each and every path and its corresponding http method )
 - The scripts project `STRUCTURE` will be like this post generation : (Note: the character `/` in the path will be replaced with `_' )
 ```txt
 playwright/
