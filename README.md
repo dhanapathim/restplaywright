@@ -54,7 +54,8 @@ playwright/
     ├── path_findByTags_GET.spec.js
     ├── path_POST.spec.js
     ├── path_GET.spc.js
-    
+
+```
 ### Run the generated automation scripts
 - Note: Some small changes might needs to be done before running the scrips.
 - run `npx playwright test`
@@ -71,4 +72,4 @@ playwright/
 - Run `playwright-restapi-swagger`
 
 
-```
+
