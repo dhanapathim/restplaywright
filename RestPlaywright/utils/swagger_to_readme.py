@@ -85,6 +85,7 @@ It is designed to:
 ---
 ## 📂Playwright Project Structure
 
+```bash
 .github/workflows/playwright.yml
 allure-report/
 allure-results/
