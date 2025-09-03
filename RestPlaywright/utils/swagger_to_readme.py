@@ -3,10 +3,11 @@ import json
 import yaml
 from pathlib import Path
 
+
 class SwaggerToReadme:
     def __init__(self, swagger_path, output_path):
         self.swagger_path = Path(swagger_path)
-        self.output_path = Path(output_path)/"README.MD"
+        self.output_path = Path(output_path) / "README.MD"
         self.swagger = self._load_swagger()
 
     def _load_swagger(self):
@@ -123,11 +124,6 @@ npx allure open ./allure-report
 
 
 """
-
-
-
-
-
 
         self.output_path.write_text(READMEcontent, encoding="utf-8")
         print(f"✅ README.md generated at {self.output_path}")

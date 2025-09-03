@@ -4,6 +4,7 @@ from langchain.chat_models import init_chat_model
 from langchain.chat_models import ChatOpenAI
 from langchain_google_genai import ChatGoogleGenerativeAI
 
+
 def get_llm():
     load_dotenv()
     model = os.getenv("LLM_MODEL")
@@ -22,7 +23,9 @@ def get_llm():
         )
     return init_chat_model(model=model, model_provider=model_provider)
 
+
 llm = get_llm()
+
 
 def invoke(prompt: str) -> str:
     return llm.invoke(prompt)

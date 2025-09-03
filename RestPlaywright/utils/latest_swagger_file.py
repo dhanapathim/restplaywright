@@ -5,20 +5,22 @@ import re
 from deepdiff import DeepDiff
 from datetime import datetime
 
+
 def load_swagger(file_path):
     with open(file_path, 'r') as f:
         return yaml.safe_load(f)
 
+
 def get_two_latest_files(folder, prefix='Swagger'):
-    files =[]
+    files = []
     valid_extensions = ['.json', '.yaml', '.yml']
     for ext in valid_extensions:
-        #files = glob.glob(os.path.join(folder, f"{prefix}*{ext}"))
+        # files = glob.glob(os.path.join(folder, f"{prefix}*{ext}"))
         files.extend(glob.glob(os.path.join(folder, f"{prefix}*{ext}")))
     if len(files) == 0: raise Exception("The folder is empty.")
     if len(files) == 1:
         print("Folder has one file.")
-        return files[0],None
+        return files[0], None
     # Extract date from filenames
     files_sorted = sorted(
         files,
@@ -65,14 +67,15 @@ def compare_swagger_paths(old_swagger, new_swagger):
 
     return {
         "added": list(added),
-        "deleted":deleted,
+        "deleted": deleted,
         "updated": updated
     }
 
+
 def get_latest_swagger_file(folder):
-   # folder = "D:\GenAI-Projects\swagger_files"  # Change this to your folder path
+    # folder = "D:\GenAI-Projects\swagger_files"  # Change this to your folder path
     old_file, new_file = get_two_latest_files(folder)
-    if new_file is None: return old_file,None
+    if new_file is None: return old_file, None
     print(f"Comparing:\nOld: {old_file}\nNew: {new_file}\n")
 
     old_swagger = load_swagger(old_file)
@@ -91,4 +94,4 @@ def get_latest_swagger_file(folder):
     print("\n=== Updated Paths ===")
     for path in result["updated"]:
         print(path)
-    return new_file,result
+    return new_file, result

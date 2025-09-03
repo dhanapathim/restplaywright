@@ -5,6 +5,7 @@ import yaml
 from pathlib import Path
 from datetime import datetime
 
+
 class PathMethodExtractor:
     def __init__(self, swagger_path: str):
         self.swagger_path = Path(swagger_path)
@@ -43,10 +44,6 @@ class PathMethodExtractor:
 
     def get_file_name(self, spec, path, method, operation):
         mini_spec = {
-            "openapi": spec.get("openapi", "3.0.0"),
-            "info": spec.get("info", {}),
-            "servers": spec.get("servers", []),
-            "security": spec.get("security", []),
             "paths": {
                 path: {
                     method: operation
@@ -73,9 +70,7 @@ class PathMethodExtractor:
                     self.get_file_name(spec, path, method, operation)
         return self.output_dir
 
-
-
-    def remove_files(self,deleted_paths, target_folder):
+    def remove_files(self, deleted_paths, target_folder):
         try:
             clean_data = [path.strip("/").replace("/", "_").replace("{", "").replace("}", "") for path in deleted_paths]
             target_folder += "/tests"

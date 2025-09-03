@@ -56,6 +56,7 @@ class PlaywrightConfigUpdater:
 
     def _update_use_block(self, content, base_url):
         """Update or insert baseURL and extraHTTPHeaders in the 'use' block."""
+
         def replacer(match):
             block = match.group(1)
             block = re.sub(r'(//\s*)?baseURL:\s*[\'"].*?[\'"],?\n?', '', block)
@@ -87,8 +88,8 @@ class PlaywrightConfigUpdater:
         if "reporter:" in content:
             # Reporter exists but without allure — replace with allure only
             return re.sub(
-                #r"reporter:\s*\[[^\]]*\],?",
-                   r"reporter:\s*[^,}]+,?",
+                # r"reporter:\s*\[[^\]]*\],?",
+                r"reporter:\s*[^,}]+,?",
                 "reporter: [['list'], ['allure-playwright'],['html'] ],\n",
                 content,
                 flags=re.DOTALL
@@ -103,6 +104,7 @@ class PlaywrightConfigUpdater:
                     content
                 )
         return content
+
     # ---------- Helpers ----------
     def _validate_paths(self):
         if not os.path.isfile(self.swagger_path):

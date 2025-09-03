@@ -1,8 +1,9 @@
 from RestPlaywright.utils.latest_swagger_file import get_latest_swagger_file
 from RestPlaywright.utils.llm_processor import LLMProcessor, GlobalSetup
 from RestPlaywright.utils.playwright_config_updater import PlaywrightConfigUpdater
-from RestPlaywright.utils.playwright_setup import  PlaywrightProjectManager
+from RestPlaywright.utils.playwright_setup import PlaywrightProjectManager
 from RestPlaywright.utils.swagger import OpenAPISpecValidator
+from datetime import datetime
 import os
 from dotenv import load_dotenv
 
@@ -10,8 +11,9 @@ from RestPlaywright.utils.swagger_extractor import PathMethodExtractor
 from RestPlaywright.utils.swagger_to_readme import SwaggerToReadme
 
 def main():
-
-    global extracted_dir
+    start_time = datetime.now()
+    print("⏳ Started at:", start_time.strftime("%Y-%m-%d %H:%M:%S"))
+    extracted_dir = None
     load_dotenv()
     language = os.getenv("TARGET_LANGUAGE")
     swagger_folder = os.getenv("SWAGGER_FILE_PATH")
@@ -24,7 +26,7 @@ def main():
     validator = OpenAPISpecValidator(swagger_file)
     validator.run_validation()
     projectmanager = PlaywrightProjectManager(target_folder)
-    new_setup=projectmanager.setup()
+    new_setup = projectmanager.setup()
     updater = PlaywrightConfigUpdater(swagger_file, target_folder)
     updater.run()
     extractor = PathMethodExtractor(swagger_file)
@@ -41,13 +43,20 @@ def main():
     if extracted_dir is not None:
         llm = GlobalSetup(target_folder, swagger_file)
         llm.genarateglobalsetup()
-        llm = LLMProcessor(target_folder,extracted_dir,language)
+        llm = LLMProcessor(target_folder, extracted_dir, language)
         llm.run()
     if result is not None and result["deleted"] is not None:
         extractor.remove_files(result["deleted"], target_folder)
 
     readme = SwaggerToReadme(swagger_file, target_folder)
     readme.generate_readme()
+    end_time = datetime.now()
+    print("⏳ Started at:", end_time.strftime("%Y-%m-%d %H:%M:%S"))
+    diff = end_time - start_time
+    minutes, seconds = divmod(diff.total_seconds(), 60)
+
+    print(f"⌛ Execution Time: {int(minutes)} minutes {int(seconds)} seconds")
+
 
 if __name__ == "__main__":
-     main()
+    main()

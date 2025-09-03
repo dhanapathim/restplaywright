@@ -4,6 +4,7 @@ import sys
 import subprocess
 from pathlib import Path
 
+
 class PlaywrightProjectManager:
     def __init__(self, target_folder: str):
         self.base_path = Path(target_folder).resolve()
@@ -34,13 +35,11 @@ class PlaywrightProjectManager:
                 return True
         return False
 
-    def clean_playwright_project(self,project_dir: str):
+    def clean_playwright_project(self, project_dir: str):
         """
         Cleans the Playwright project directory by deleting unnecessary files and folders.
         """
         project_path = Path(project_dir).resolve()
-
-
 
         #  Delete the 'tests-examples' folder if it exists
         examples_path = project_path / "tests-examples"
@@ -88,7 +87,7 @@ class PlaywrightProjectManager:
             print("✅ Skipping setup — Playwright project already exists.")
             return
 
-        #new_proj_path = self.base_path / "playwright"
+        # new_proj_path = self.base_path / "playwright"
         new_proj_path = self.base_path
         new_proj_path.mkdir(parents=True, exist_ok=True)
         print(f"📦 Creating new Playwright project in: {new_proj_path}")
@@ -152,7 +151,7 @@ class PlaywrightProjectManager:
         os.makedirs(folder_path, exist_ok=True)
 
         # Write the YAML content to the file
-        with open(file_path, "w",encoding="utf-8") as f:
+        with open(file_path, "w", encoding="utf-8") as f:
             f.write(yaml_content)
 
         print(f"Workflow file created at: {file_path}")
@@ -241,47 +240,47 @@ export const test = base.extend({
         print(f"fixtures file created at: {file_path}")
 
     def ensure_gitignore(self, project_dir: Path):
-            """
-            Ensure .gitignore exists and contains Playwright + Python specific ignores.
-            If the file exists, append missing ignores. If not, create it.
-            """
-            ignores = [
-                "# Playwright",
-                "/node_modules/",
-                "/test-results/",
-                "/playwright-report/",
-                "/blob-report/",
-                "/.cache/",
-                ".DS_Store",
-                "/allure-report/",
-                "/allure-results/",
-                ".env",
-                ".env-*",
-                ".venv",
-                "venv",
-                "__pycache__",
-                ".idea",
-                "build",
-                "dist",
-                "*.egg-info",
-            ]
+        """
+        Ensure .gitignore exists and contains Playwright + Python specific ignores.
+        If the file exists, append missing ignores. If not, create it.
+        """
+        ignores = [
+            "# Playwright",
+            "/node_modules/",
+            "/test-results/",
+            "/playwright-report/",
+            "/blob-report/",
+            "/.cache/",
+            ".DS_Store",
+            "/allure-report/",
+            "/allure-results/",
+            ".env",
+            ".env-*",
+            ".venv",
+            "venv",
+            "__pycache__",
+            ".idea",
+            "build",
+            "dist",
+            "*.egg-info",
+        ]
 
-            gitignore_path = Path(project_dir) / ".gitignore"
+        gitignore_path = Path(project_dir) / ".gitignore"
 
-            if not gitignore_path.exists():
-                # Create and write all ignores
-                gitignore_path.write_text("\n".join(ignores) + "\n", encoding="utf-8")
-                return f"✅ Created new .gitignore at {gitignore_path}"
+        if not gitignore_path.exists():
+            # Create and write all ignores
+            gitignore_path.write_text("\n".join(ignores) + "\n", encoding="utf-8")
+            return f"✅ Created new .gitignore at {gitignore_path}"
+        else:
+            # Append only missing entries
+            content = gitignore_path.read_text(encoding="utf-8").splitlines()
+            updated = content[:]
+            for line in ignores:
+                if line and line not in content:
+                    updated.append(line)
+
+            if updated != content:
+                gitignore_path.write_text("\n".join(updated) + "\n", encoding="utf-8")
+                return f"🔄 Updated existing .gitignore at {gitignore_path}"
             else:
-                # Append only missing entries
-                content = gitignore_path.read_text(encoding="utf-8").splitlines()
-                updated = content[:]
-                for line in ignores:
-                    if line and line not in content:
-                        updated.append(line)
-
-                if updated != content:
-                    gitignore_path.write_text("\n".join(updated) + "\n", encoding="utf-8")
-                    return f"🔄 Updated existing .gitignore at {gitignore_path}"
-                else:
-                    return "👌 .gitignore already contains all required ignores"
+                return "👌 .gitignore already contains all required ignores"
