@@ -21,6 +21,13 @@ dependencies = [
     "DeepDiff"
 ]
 
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.package-data]
+"RestPlaywright" = ["*.txt", "*.json", "*.yaml"]
+
+
 [build-system]
 requires = ["setuptools>=61.0", "wheel", "build"]
 build-backend = "setuptools.build_meta"

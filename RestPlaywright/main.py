@@ -11,6 +11,7 @@ from RestPlaywright.utils.swagger_extractor import PathMethodExtractor
 from RestPlaywright.utils.swagger_to_readme import SwaggerToReadme
 
 def main():
+    """Main function to orchestrate the workflow."""
     start_time = datetime.now()
     print("⏳ Started at:", start_time.strftime("%Y-%m-%d %H:%M:%S"))
     extracted_dir = None

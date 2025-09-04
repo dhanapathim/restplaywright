@@ -14,6 +14,10 @@ class PathMethodExtractor:
         self.output_dir.mkdir(parents=True, exist_ok=True)
 
     def to_plain_obj(self, obj):
+        """
+        Recursively convert jsonref objects to plain dicts/lists.
+        :param obj:  The object to convert.
+        :return: A plain dict or list."""
         if isinstance(obj, dict):
             return {k: self.to_plain_obj(v) for k, v in obj.items()}
         elif isinstance(obj, list):
@@ -21,11 +25,13 @@ class PathMethodExtractor:
         return obj
 
     def sanitize_filename(self, path: str, method: str):
+        """Sanitize the path and method to create a valid filename."""
         clean_path = path.strip("/").replace("/", "_").replace("{", "").replace("}", "")
         filename_prefix = clean_path if clean_path else "root"
         return f"{filename_prefix}_{method.upper()}"
 
     def load_spec(self):
+        """Load the OpenAPI spec from JSON or YAML file."""
         with open(self.swagger_path, "r", encoding="utf-8") as f:
             if self.swagger_path.suffix in [".yaml", ".yml"]:
                 return yaml.safe_load(f)
@@ -33,6 +39,7 @@ class PathMethodExtractor:
                 return json.load(f)
 
     def extract_paths_and_methods(self):
+        """Extract paths and methods from the OpenAPI spec and save each to a separate file."""
         spec = self.load_spec()
         paths = spec.get("paths", {})
 
@@ -43,6 +50,7 @@ class PathMethodExtractor:
         return self.output_dir
 
     def get_file_name(self, spec, path, method, operation):
+        """Create a mini OpenAPI spec for the given path and method, and save it to a file."""
         mini_spec = {
             "paths": {
                 path: {
@@ -61,6 +69,7 @@ class PathMethodExtractor:
         print(f"✅ Saved: {output_file}")
 
     def get_update_add_paths_and_methods(self, added_paths, updated_paths):
+        """Extract only the added or updated paths and methods from the OpenAPI spec and save each to a separate file."""
         spec = self.load_spec()
         paths = spec.get("paths", {})
 
@@ -71,6 +80,7 @@ class PathMethodExtractor:
         return self.output_dir
 
     def remove_files(self, deleted_paths, target_folder):
+        """Remove files corresponding to the deleted paths from the target folder."""
         try:
             clean_data = [path.strip("/").replace("/", "_").replace("{", "").replace("}", "") for path in deleted_paths]
             target_folder += "/tests"

@@ -14,6 +14,7 @@ class OpenAPISpecValidator:
         self.spec = None
 
     def run_validation(self):
+        """Main method to run the validation process."""
         path = Path(self.swagger_file)
         self._check_file(path)
         self.spec = self._load_spec(path)
@@ -21,6 +22,7 @@ class OpenAPISpecValidator:
         self._validate_spec(self.spec)
 
     def _check_file(self, path: Path):
+        """Check if the file exists and has a valid extension."""
         if not path.exists():
             print(f"❌ File does not exist: {path}")
             sys.exit(1)
@@ -32,6 +34,7 @@ class OpenAPISpecValidator:
         print(f"📄 File detected: {path.name}")
 
     def _load_spec(self, file_path: Path):
+        """Load the OpenAPI spec from JSON or YAML file."""
         with file_path.open('r', encoding='utf-8') as f:
             if file_path.suffix == '.json':
                 return json.load(f)
@@ -39,6 +42,7 @@ class OpenAPISpecValidator:
                 return yaml.safe_load(f)
 
     def _check_openapi_version(self, spec: dict):
+        """Check if the OpenAPI version is 3.x or higher."""
         version = spec.get("openapi")
         if not version:
             print("❌ 'openapi' field not found. This is not a valid OpenAPI 3.x+ spec.")
@@ -52,6 +56,7 @@ class OpenAPISpecValidator:
         print(f"🔍 OpenAPI version {version} detected — OK.")
 
     def _validate_spec(self, spec: dict):
+        """Validate the OpenAPI spec using openapi-spec-validator."""
         try:
             validate(spec)
             print("✅ OpenAPI 3.x spec is valid.")

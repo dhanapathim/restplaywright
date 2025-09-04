@@ -11,6 +11,7 @@ class SwaggerToReadme:
         self.swagger = self._load_swagger()
 
     def _load_swagger(self):
+        """Load the Swagger/OpenAPI spec from JSON or YAML file."""
         ext = self.swagger_path.suffix.lower()
         with open(self.swagger_path, "r", encoding="utf-8") as f:
             if ext == ".json":
@@ -21,6 +22,7 @@ class SwaggerToReadme:
                 raise ValueError("Swagger file must be JSON or YAML")
 
     def generate_readme(self):
+        """Generate a README.md file summarizing the API from the Swagger spec."""
         info = self.swagger.get("info", {})
         title = info.get("title", "API")
         version = info.get("version", "N/A")
