@@ -39,6 +39,11 @@ class LLMProcessor:
         ]
 
     def to_plain_obj(self, obj):
+        """
+        Recursively convert jsonref objects to plain dicts/lists.
+        :param obj:  The object to convert.
+        :return: A plain dict or list.
+        """
         if isinstance(obj, dict):
             return {k: self.to_plain_obj(v) for k, v in obj.items()}
         elif isinstance(obj, list):
@@ -46,6 +51,11 @@ class LLMProcessor:
         return obj
 
     def load_spec(self, file: Path):
+        """
+        Load and resolve references in the OpenAPI spec file.
+        :param file: The OpenAPI spec file path.
+        :return: A dict with resolved references.
+        """
         with open(file, "r", encoding="utf-8") as f:
             if file.suffix in [".yaml", ".yml", ".json"]:
                 raw = yaml.safe_load(f)
@@ -58,6 +68,12 @@ class LLMProcessor:
         return self.to_plain_obj(resolved)
 
     def build_prompt(self, spec: dict, filename: str) -> str:
+        """
+        Build the prompt for the LLM.
+        :param spec: The OpenAPI spec as a dict.
+        :param filename: The name of the OpenAPI spec file.
+        :return: A formatted prompt string.
+        """
         # Only pass filename + spec as input
         return f"""
             OpenAPI file: **{filename}**
@@ -69,6 +85,11 @@ class LLMProcessor:
             """
 
     def run(self):
+        """
+        Process each OpenAPI spec file in the input directory, generate Playwright test code using the LLM,
+        and save the output to the output directory.
+        :return: None
+        """
         for file in self.input_dir.iterdir():
             if file.suffix.lower() not in [".json", ".yaml", ".yml"]:
                 continue
@@ -123,6 +144,10 @@ class GlobalSetup:
         ]
 
     def load_spec(self):
+        """
+        Load the OpenAPI spec file.
+        :return: The spec as a string.
+        """
         with open(self.swagger_file, "r", encoding="utf-8") as f:
             if self.swagger_file.suffix.lower() in [".yaml", ".yml"]:
                 spec = yaml.safe_load(f)
@@ -134,6 +159,12 @@ class GlobalSetup:
                 raise ValueError("Unsupported Swagger file format.")
 
     def build_global_setup_prompt(self, spec: dict, filename: str) -> str:
+        """
+        Build the prompt for generating the global setup file.
+        :param spec: The OpenAPI spec as a dict.
+        :param filename: The name of the OpenAPI spec file.
+        :return: A formatted prompt string.
+        """
         return f"""
         OpenAPI file: **{filename}**
 
@@ -144,6 +175,10 @@ class GlobalSetup:
         """
 
     def genarateglobalsetup(self):
+        """
+        Generate the global setup file using the LLM and save it to the output directory.
+        :return: None
+        """
         spec = self.load_spec()
 
         user_message = self.build_global_setup_prompt(spec, self.swagger_file)
@@ -163,6 +198,12 @@ class GlobalSetup:
 
 
 def clean_code_fences(root_folder, extensions=[".js", ".ts", ]):
+    """
+    Remove starting and ending Markdown code fences from all files in the given folder with specified extensions.
+    :param root_folder: The root folder to search.
+    :param extensions: List of file extensions to process.
+    :return: None
+    """
     for subdir, _, files in os.walk(root_folder):
         for filename in files:
             if any(filename.endswith(ext) for ext in extensions):

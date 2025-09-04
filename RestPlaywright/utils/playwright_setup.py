@@ -11,6 +11,7 @@ class PlaywrightProjectManager:
         print(f"📁 Target folder: {self.base_path}")
 
     def run_command(self, command, cwd):
+        """Run a shell command in the specified directory."""
         try:
             print(f"▶️ Running: {command}")
             subprocess.run(command, cwd=cwd, check=True, shell=True)
@@ -22,6 +23,7 @@ class PlaywrightProjectManager:
             sys.exit(1)
 
     def is_playwright_project(self, folder: Path) -> bool:
+        """Check if the given folder is a Playwright project."""
         return any([
             (folder / "playwright.config.js").exists(),
             (folder / "playwright.config.mjs").exists(),
@@ -29,6 +31,7 @@ class PlaywrightProjectManager:
         ])
 
     def find_any_playwright_project(self, base_path: Path) -> bool:
+        """Recursively search for any Playwright project in the base_path."""
         for subdir in base_path.rglob("*"):
             if subdir.is_dir() and self.is_playwright_project(subdir):
                 print(f"✅ Playwright project found at: {subdir}")
@@ -59,6 +62,7 @@ class PlaywrightProjectManager:
             print(f"⚠️ 'tests' directory not found at: {tests_path}")
 
     def initiate_project_setup(self, tests_dir: Path) -> bool:
+        """Set up a new Playwright project in the specified directory."""
         if self.is_playwright_project(tests_dir):
             print("ℹ️ Playwright already configured here.")
             return False
@@ -79,6 +83,7 @@ class PlaywrightProjectManager:
         return True
 
     def setup(self):
+        """Main method to set up Playwright project if none exists."""
         if not self.base_path.exists():
             print(f"📁 Creating base folder: {self.base_path}")
             self.base_path.mkdir(parents=True)
@@ -94,6 +99,7 @@ class PlaywrightProjectManager:
         return self.initiate_project_setup(new_proj_path)
 
     def create_workflow_yml_file(self, project_dir: Path):
+        """Create a GitHub Actions workflow YAML file for Playwright tests."""
         # Define the YAML content
         yaml_content = """\
            name: Playwright Tests

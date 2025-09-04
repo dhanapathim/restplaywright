@@ -12,6 +12,7 @@ class PlaywrightConfigUpdater:
 
     # ---------- Public API ----------
     def run(self):
+        """Main method to update playwright.config.js based on Swagger."""
         self._validate_paths()
         swagger = self._load_swagger()
         base_url = self._extract_base_url(swagger)
@@ -107,12 +108,14 @@ class PlaywrightConfigUpdater:
 
     # ---------- Helpers ----------
     def _validate_paths(self):
+        """Ensure swagger_path and config_path exist."""
         if not os.path.isfile(self.swagger_path):
             raise FileNotFoundError(f"Swagger file not found: {self.swagger_path}")
         if not os.path.isfile(self.config_path):
             raise FileNotFoundError(f"playwright.config.js not found: {self.config_path}")
 
     def _load_swagger(self):
+        """Load Swagger file (JSON or YAML) and return as dict."""
         ext = os.path.splitext(self.swagger_path)[1].lower()
         with open(self.swagger_path, 'r') as f:
             if ext == '.json':
@@ -123,15 +126,18 @@ class PlaywrightConfigUpdater:
                 raise ValueError("Swagger file must be .json or .yaml/.yml")
 
     def _extract_base_url(self, swagger):
+        """Extract baseURL from swagger['servers'][0]['url']."""
         try:
             return swagger['servers'][0]['url']
         except (KeyError, IndexError):
             raise ValueError("Swagger missing servers[0].url")
 
     def _read_file(self, path):
+        """Read file content."""
         with open(path, 'r', encoding='utf-8') as f:
             return f.read()
 
     def _write_file(self, path, content):
+        """Write content to file."""
         with open(path, 'w', encoding='utf-8') as f:
             f.write(content)

@@ -6,6 +6,12 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 
 
 def get_llm():
+    """
+       Loads environment variables and initializes a language model (LLM) client based on configuration.
+
+       Returns:
+           An instance of a chat model client (ChatGoogleGenerativeAI, ChatOpenAI, or other supported by langchain).
+       """
     load_dotenv()
     model = os.getenv("LLM_MODEL")
     model_provider = os.getenv("LLM_MODEL_PROVIDER")
@@ -28,4 +34,13 @@ llm = get_llm()
 
 
 def invoke(prompt: str) -> str:
+    """
+      Sends a prompt to the initialized LLM and returns the generated response.
+
+      Args:
+          prompt (str): The input prompt to send to the LLM.
+
+      Returns:
+          str: The LLM's response to the prompt.
+      """
     return llm.invoke(prompt)
