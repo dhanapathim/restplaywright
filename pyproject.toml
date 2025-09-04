@@ -25,7 +25,7 @@ dependencies = [
 include-package-data = true
 
 [tool.setuptools.package-data]
-"RestPlaywright" = ["*.txt", "*.json", "*.yaml"]
+"RestPlaywright" = ["prompts/*.txt"]
 
 
 [build-system]
