@@ -17,6 +17,7 @@ def to_langchain_messages(messages):
         elif m["role"] == "assistant":
             converted.append(AIMessage(content=m["content"]))
     return converted
+    
 
 
 class LLMProcessor:
