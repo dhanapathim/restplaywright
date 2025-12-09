@@ -4,7 +4,7 @@ import yaml
 import jsonref
 from pathlib import Path
 from RestPlaywright.utils import llm
-from langchain.schema import HumanMessage, SystemMessage, AIMessage
+from langchain_core.messages import HumanMessage, SystemMessage, AIMessage
 
 def to_langchain_messages(messages):
     """Convert OpenAI-style messages into LangChain messages"""

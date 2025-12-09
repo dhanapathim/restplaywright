@@ -68,7 +68,7 @@ class PlaywrightProjectManager:
             return False
 
         commands = [
-            "npm init playwright@latest -- --yes --lang=js --quiet --install-deps",
+            "npm init playwright@latest -- --lang=js --quiet --install-deps",
             "npm i -D allure-playwright dotenv allure-js-commons"
         ]
 
