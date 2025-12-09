@@ -12,6 +12,8 @@ dependencies = [
     "openapi-spec-validator",
     "jsonref",
     "langchain>=0.2.0",
+    "langchain-openai",
+    "langchain-core",
     "langchain-google-genai>=0.1.0",
     "langchain-community",
     "openai",
