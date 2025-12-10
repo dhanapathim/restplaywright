@@ -124,7 +124,7 @@ npx playwright test
 
 npx allure generate ./allure-results --clean -o ./allure-report
 npx allure open ./allure-report
-
+```
 
 """
 
