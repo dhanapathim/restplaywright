@@ -25,6 +25,8 @@ GEMINI_API_KEY=AIza45DRYbV1sPtxAd76yxEfjI2hsEA84mQTadg
 # The target programming language for the generated Playwright code (e.g., JavaScript, Python, TypeScript).
 TARGET_LANGUAGE=JavaScript
 ```
+### Demo
+https://github.com/user-attachments/assets/ba168825-62d1-4eb3-8f1f-05351575b5ed
 
 ### Steps to generate automation scripts :
 - Save the swagger file in local system.
